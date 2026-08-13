@@ -53,19 +53,4 @@ def reflection_loss_db(z1_mrayl: float, z2_mrayl: float) -> float:
     return -10 * (power_transmitted and __import__("math").log10(power_transmitted))
 
 
-def path_attenuation_db(path, freq_mhz: float, include_reflections: bool = True) -> float:
-    """Total one-way attenuation (absorption + boundary reflection losses)
-    through a sequence of TissueLayer objects, assuming water/coupling gel
-    (Z ~ 1.5 MRayl) as the medium before the first layer."""
-    total_db = 0.0
-    prev_z = 1.5  # coupling medium impedance
-    for layer in path:
-        total_db += layer.attenuation_db(freq_mhz)
-        if include_reflections:
-            total_db += reflection_loss_db(prev_z, layer.impedance_mrayl)
-        prev_z = layer.impedance_mrayl
-    return total_db
 
-
-def path_length_cm(path) -> float:
-    return sum(layer.thickness_cm for layer in path)
