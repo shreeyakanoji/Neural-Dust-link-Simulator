@@ -92,4 +92,4 @@ app.py               Streamlit app tying it all together
 
 Built as part of ongoing exploration into non-invasive brain-computer
 interfaces, alongside EEG/ECG-based intent and emotion decoding work
-(see [Emotion-and-Intent-Recognition-software](https://github.com/shreeyakanoji/Emotion-and-Intent-Recognition-software)).
+(see [Emotion-and-Intent-Recognition-software](https://github.com/shreeyakanoji/Intent-Recognizer)).
