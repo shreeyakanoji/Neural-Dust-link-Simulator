@@ -1,12 +1,7 @@
 """
 2D spatial visualization: SNR/intensity field over a synthetic head
-cross-section (skin -> skull -> brain), not just a 1D depth plot.
+cross-section (skin -> skull -> brain).
 
-This maps your link-budget physics onto an actual head-shaped geometry so
-you can see the beam collimate in the near field, spread past it, and take
-the big skull hit -- geometry-aware, built from the same tissue/link_budget
-modules (no new physics engine yet -- this is the "achievable now" tier;
-k-Wave/FEM is the tier above this for actual wave-equation propagation).
 """
 
 import numpy as np
