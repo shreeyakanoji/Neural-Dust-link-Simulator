@@ -82,3 +82,31 @@ def compute_snr_field(freq_mhz: float, tx_power_dbm: float = 0.0,
     return X, Y, tissue_id, snr_field
 
 
+def plot_spatial_map(freq_mhz: float, out_path: str):
+    X, Y, tissue_id, snr_field = compute_snr_field(freq_mhz)
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5.5))
+
+    tissue_cmap = plt.cm.colors.ListedColormap(["#dce8f5", "#f2d8b8", "#8a8a8a", "#e7b8c4"])
+    axes[0].pcolormesh(X, Y, tissue_id, cmap=tissue_cmap, shading="auto")
+    axes[0].invert_yaxis()
+    axes[0].set_title("Synthetic head cross-section\n(gel / skin / skull / brain)")
+    axes[0].set_xlabel("lateral position (cm)")
+    axes[0].set_ylabel("depth (cm)")
+
+    vmin, vmax = np.percentile(snr_field, [2, 98])
+    im = axes[1].pcolormesh(X, Y, snr_field, cmap="inferno", shading="auto",
+                             vmin=vmin, vmax=vmax)
+    axes[1].invert_yaxis()
+    axes[1].set_title(f"Received SNR field @ {freq_mhz:.2f} MHz")
+    axes[1].set_xlabel("lateral position (cm)")
+    fig.colorbar(im, ax=axes[1], label="SNR (dB)")
+
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=140)
+    print(f"Saved {out_path}")
+
+
+if __name__ == "__main__":
+    plot_spatial_map(freq_mhz=1.0, out_path="head_field_1p0MHz.png")
+    plot_spatial_map(freq_mhz=0.5, out_path="head_field_0p5MHz.png")
