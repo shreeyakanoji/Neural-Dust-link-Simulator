@@ -25,3 +25,29 @@ def coupled_mote_aperture_cm(freq_mhz: float, aperture_over_lambda: float = 0.75
     return min(ideal, MAX_MOTE_APERTURE_CM)
 
 
+    def snr_db_at_frequency(freq_mhz: float, depth_cm: float, tx_power_dbm: float,
+                         tx_aperture_cm: float = 1.0) -> float:
+    mote_aperture_cm = coupled_mote_aperture_cm(freq_mhz)
+    budget = two_way_link_budget_db(depth_cm, freq_mhz, tx_aperture_cm, mote_aperture_cm)
+    rx_power_dbm = tx_power_dbm - budget["total_two_way_loss_db"]
+    return rx_power_dbm - NOISE_FLOOR_DBM
+
+
+def find_optimal_frequency(depth_cm: float, tx_power_dbm: float = 0.0,
+                            freq_range_mhz=(0.2, 10.0)) -> dict:
+    result = minimize_scalar(
+        lambda f: -snr_db_at_frequency(f, depth_cm, tx_power_dbm),
+        bounds=freq_range_mhz, method="bounded"
+    )
+    best_freq = result.x
+    best_snr = -result.fun
+    return {"optimal_freq_mhz": best_freq, "max_snr_db": best_snr,
+            "mote_aperture_cm": coupled_mote_aperture_cm(best_freq)}
+
+
+if __name__ == "__main__":
+    for depth in [1.0, 2.0, 3.0, 5.0]:
+        opt = find_optimal_frequency(depth_cm=depth)
+        print(f"Depth {depth} cm -> optimal freq {opt['optimal_freq_mhz']:.2f} MHz, "
+              f"SNR {opt['max_snr_db']:.1f} dB, "
+              f"mote aperture {opt['mote_aperture_cm']*10:.3f} mm")
