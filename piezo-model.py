@@ -10,13 +10,6 @@ based on real material physics:
      loss between the piezo's acoustic impedance and the load (tissue),
      using the same normal-incidence formula already used in tissue.py.
 
-Honest scope: this is still a simplified two-effect model, NOT a full
-distributed KLM/Mason equivalent circuit (no matching-layer bandwidth
-shaping, no frequency-dependent transformer ratio, no backing-layer
-reflections). What it fixes: it now uses real piezo material impedance
-and real mismatch physics instead of an arbitrary penalty function with
-no physical basis -- that was the single biggest accuracy gap flagged
-in validation.py, and this closes most of it.
 """
 
 import numpy as np
