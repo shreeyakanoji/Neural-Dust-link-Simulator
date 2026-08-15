@@ -73,6 +73,38 @@ def check_optimal_frequency_vs_published_neural_dust():
           "given the piezo efficiency term is heuristic, not a derived circuit model.")
 
 
+def check_diffraction_first_null():
+    """The circular-piston diffraction model (diffraction.py) is validated
+    against the EXACT closed-form first-null formula (sin(theta) = 1.22
+    lambda/D) -- this replaces the old Gaussian lateral-falloff heuristic
+    with real physics, and is checked here to a tight tolerance since it's
+    an analytical solution, not an approximation."""
+    print("\n[4] Diffraction model vs. exact first-null formula")
+    from diffraction import piston_directivity, first_null_angle_deg
+    import numpy as np
+    null_deg = first_null_angle_deg(aperture_radius_cm=0.5, freq_mhz=1.0)
+    d_at_null = piston_directivity(np.radians(null_deg), aperture_radius_cm=0.5, freq_mhz=1.0)
+    print(f"    first-null angle: {null_deg:.2f} deg, directivity there: {d_at_null:.6f} "
+          f"(should be ~0, exact solution)")
+    d_onaxis = piston_directivity(0.0, aperture_radius_cm=0.5, freq_mhz=1.0)
+    print(f"    on-axis directivity: {d_onaxis:.6f} (should be exactly 1.0)")
+    return d_at_null < 0.01 and abs(d_onaxis - 1.0) < 1e-6
+
+
+def check_piezo_model_physics():
+    """The piezo model (piezo_model.py) now uses real PZT-5H material
+    impedance (~34.5 MRayl) instead of an arbitrary penalty function --
+    checks it lands in the commonly-cited range for hard piezoceramics
+    (30-36 MRayl is typical for PZT-5H across sources)."""
+    print("\n[5] Piezo material impedance vs. commonly-cited PZT-5H range")
+    from piezo_model import PZT5H_IMPEDANCE_MRAYL
+    lit_range = (30, 36)
+    in_range = lit_range[0] <= PZT5H_IMPEDANCE_MRAYL <= lit_range[1]
+    print(f"    model: {PZT5H_IMPEDANCE_MRAYL:.1f} MRayl | commonly-cited range: "
+          f"{lit_range[0]}-{lit_range[1]} MRayl | within range: {in_range}")
+    return in_range
+
+
 def summarize():
     print("=" * 70)
     print("ACCURACY SUMMARY")
@@ -82,25 +114,53 @@ VALIDATED (formula-level, exact by construction):
   - Near-field length z_nf = a^2*f/c        -- standard transducer physics formula
   - Reflection coefficient at boundaries    -- standard normal-incidence formula
   - Power-law attenuation form alpha(f)=a0*f^b -- standard bioacoustics form
+  - Circular-piston diffraction pattern     -- EXACT closed-form Bessel solution,
+    matches the analytical first-null angle to <0.01 directivity error
 
-(quantified error above):
+CHECKED AGAINST REFERENCE VALUES (quantified error above):
   - Soft tissue attenuation vs 1 dB/cm/MHz rule of thumb
   - Skull insertion loss vs commonly-cited 10-20 dB range @ 1 MHz
   - Optimal frequency vs published neural dust operating point (order-of-magnitude)
+  - PZT-5H acoustic impedance vs commonly-cited 30-36 MRayl range
 
-NOT INDEPENDENTLY VALIDATED (heuristic / illustrative only -- treat with caution):
-  - Piezo receive-coupling efficiency: a simplified log-quadratic penalty
-    function, NOT a derived KLM/Mason equivalent-circuit model. This is the
-    single biggest accuracy gap in the whole simulator -- replacing it with
-    a real KLM model (per your own earlier spec) is the highest-value next
-    upgrade.
-  - Lateral beam falloff in spatial_map.py: a Gaussian-shaped approximation,
-    not a real diffraction integral (no sidelobes, no true beam pattern).
-  - Backscatter modulation loss: a fixed 6 dB placeholder, not derived from
-    an actual impedance-switching circuit model.
-  - Ray-based spatial field: ignores real wave effects entirely --
-    interference, refraction at oblique boundaries, and multi-path are
-    all absent. This is the gap a k-Wave-based simulation would close.
+UPGRADED THIS PASS (previously heuristic, now physically grounded):
+  - Piezo TX/RX coupling efficiency: now uses real PZT-5H acoustic impedance
+    and electromechanical coupling coefficient (k_t) instead of an arbitrary
+    aperture-ratio penalty function. TX assumes an ideal matching layer
+    (physically justified -- TX isn't size-constrained); mote RX is modeled
+    unmatched (physically justified -- no room for a matching layer at
+    sub-mm scale), which is why mote coupling loss now dominates the
+    budget -- consistent with what real neural dust literature identifies
+    as the limiting factor.
+  - Backscatter modulation loss: now derived from the actual reflectivity
+    change between short-circuit and open-circuit piezo states (real
+    piezoelectric stiffening physics), replacing the fixed 6 dB placeholder.
+    IMPORTANT CAVEAT: this captures ONE real mechanism (stiffness change)
+    but real neural dust designs primarily modulate via electrical
+    damping/Q-switching (resistive loading), a related but distinct
+    mechanism that can achieve deeper modulation than stiffness-switching
+    alone predicts here. Treat the derived value as a conservative,
+    physically-motivated estimate, not a validated final number.
+  - Lateral beam pattern: now the exact circular-piston Bessel diffraction
+    function (real sidelobes, real first-null angle) instead of a fitted
+    Gaussian. This is genuinely validated (see check above), not just
+    "less heuristic."
+
+STILL NOT INDEPENDENTLY VALIDATED / KNOWN LIMITATIONS:
+  - Near-field diffraction detail: the Bessel fix covers FAR-FIELD
+    directivity; true near-field (Fresnel zone ripples) would need a full
+    numerical Rayleigh-Sommerfeld integral -- not done this pass.
+  - The spatial/3D field is still ray-based for propagation: no
+    interference between multiple paths, no refraction at oblique tissue
+    boundaries, no reflected-wave multipath. A k-Wave (pseudospectral
+    time-domain) simulation is the remaining research-grade upgrade for
+    real wave-equation behavior -- this is a genuinely larger undertaking
+    (new dependency, significant compute, geometry meshing) and was
+    intentionally not attempted this pass rather than faked.
+  - Piezo model has no matching-layer bandwidth shaping or backing-layer
+    reflections (not a full distributed KLM/Mason circuit) -- it's a
+    two-effect model (coupling limit + mismatch loss), a real improvement
+    over the previous heuristic but still simplified.
 """)
 
 
@@ -108,4 +168,6 @@ if __name__ == "__main__":
     check_soft_tissue_rule_of_thumb()
     check_skull_attenuation_order_of_magnitude()
     check_optimal_frequency_vs_published_neural_dust()
+    check_diffraction_first_null()
+    check_piezo_model_physics()
     summarize()
