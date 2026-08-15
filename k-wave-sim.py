@@ -1,7 +1,7 @@
 """
 Real k-Wave (pseudospectral time-domain) acoustic wave-equation simulation
 through a heterogeneous, layered head model built from the same tissue
-properties used elsewhere (tissue.py) -- this is the research-grade
+properties used elsewhere (tissue.py),  this is the research-grade
 upgrade flagged in validation.py: unlike the ray-based spatial_map.py /
 view_3d.py, this actually solves the acoustic wave equation, capturing
 real interference, diffraction, and reflection/refraction at tissue
