@@ -2,7 +2,7 @@
 
 An interactive engineering simulator for ultrasonic power delivery and
 backscatter communication in implantable "neural dust"-style sensors,
-following the design approach introduced in Seo et al. 2013 (UC Berkeley) —
+following the design approach introduced in Seo et al. 2013 (UC Berkeley) 
 with reference to Charles Lieber's syringe-injectable mesh electronics work
 as a related minimally-invasive neural interface approach.
 
@@ -30,7 +30,7 @@ the simulator computes:
 
 This isn't a formula-chain toy model. The interesting engineering question
 is: *given a target depth and a power budget, what frequency and mote size
-maximize received SNR?* That's a real tradeoff — higher frequency improves
+maximize received SNR?* That's a real tradeoff  higher frequency improves
 transducer coupling efficiency but tissue attenuation gets worse, and mote
 size and frequency aren't independent (aperture wants to scale with
 wavelength, but is capped by the sub-mm form factor that defines "dust").
@@ -43,19 +43,19 @@ number with equal confidence. Full breakdown with quantified error metrics
 lives in `validation.py` and is also shown live in the app under
 "Model accuracy." Short version:
 
-- **Validated (exact by construction):** near-field length formula,
+- **Validated (exact by construction):** near field length formula,
   reflection coefficients, power-law attenuation form
 - **Checked against reference values:** soft-tissue attenuation vs. the
-  ~1 dB/cm/MHz rule of thumb, skull insertion loss vs. commonly-cited
+  ~1 dB/cm/MHz rule of thumb, skull insertion loss vs. commonly cited
   10-20 dB range, optimal frequency vs. the published neural dust
   operating point (order-of-magnitude match)
 - **Heuristic, not independently validated:** piezo receive-coupling
   efficiency (simplified penalty function, not a derived KLM/Mason
-  circuit model — the single biggest accuracy gap here), lateral beam
+  circuit model  the single biggest accuracy gap here), lateral beam
   falloff (Gaussian approximation, no true diffraction pattern),
   backscatter modulation loss (fixed placeholder)
 - **Known limitation:** the spatial/3D views are ray-based, not a
-  wave-equation solve — no interference, refraction, or multi-path.
+  wave-equation solve no interference, refraction, or multi-path.
   A k-Wave (pseudospectral time-domain) simulation is the natural
   research-grade next step.
 
