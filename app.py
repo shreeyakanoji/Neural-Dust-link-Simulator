@@ -1,8 +1,7 @@
 """
 Neural Dust Link-Budget Simulator — single-file Streamlit app.
-Combines tissue.py, piezo_model.py, diffraction.py, link_budget.py, sweep.py,
-spatial_map.py, view_3d.py, and the Streamlit UI into one file to avoid
-multi-file copy/paste issues.
+I Combined tissue.py, piezo_model.py, diffraction.py, link_budget.py, sweep.py,
+spatial_map.py, view_3d.py, and the Streamlit UI into one file 
 """
 
 from dataclasses import dataclass
