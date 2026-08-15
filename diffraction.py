@@ -2,7 +2,7 @@
 Real circular-piston far-field diffraction pattern, replacing the Gaussian
 lateral-falloff approximation with the standard, well-established closed-form
 directivity function for a baffled circular piston transducer (Kinsler &
-Frey / Blackstock -- standard acoustics textbook result, low risk of error
+Frey / Blackstock; standard acoustics textbook result, low risk of error
 since it's an exact analytical solution, not a fitted approximation):
 
     D(theta) = | 2*J1(x) / x |,   x = k*a*sin(theta)
@@ -12,14 +12,6 @@ wavenumber, a is the piston (transducer) radius, and theta is the angle
 off-axis. This produces genuine sidelobes and a real first-null angle,
 unlike the Gaussian approximation it replaces.
 
-Honest scope: this is the FAR-FIELD directivity pattern specifically. Near
-field is still handled by the existing collimation approximation in
-link_budget.py / spatial_map.py -- true near-field diffraction (Fresnel
-zone ripples) would need a full Rayleigh-Sommerfeld numerical integral,
-which is a further upgrade beyond this pass. This fix targets the "no
-sidelobes, no true beam pattern" gap specifically for the region where it
-matters most (far field, where most of the tissue path lives at typical
-implant depths).
 """
 
 import numpy as np
