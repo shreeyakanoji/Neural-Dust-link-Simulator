@@ -1,7 +1,5 @@
 """
-Plotting helper for kwave_sim.py output -- kept separate so app.py can
-load it lazily rather than pulling in kwave at module load time (see the
-try/except guard in app.py, since k-Wave depends on a system
+Plotting helper for kwave_sim.py output; (since k-Wave depends on a system
 library, libhdf5, that may not be present on every deployment target).
 """
 
